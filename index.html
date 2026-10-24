@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>政治 UNO 黨籍對照表</title>
+<style>
+:root{--bg:#f6f5f1;--fg:#1d1d1b;--mut:#6b6b66;--card:#fff;--bd:#dedcd4;--b:#2b5fc7;--g:#1f9a4f;--y:#e8b400;--r:#d6362b;--o:#8a8a84;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#161615;--fg:#eeede8;--mut:#a3a39c;--card:#232321;--bd:#3a3a36;--b:#6f9bf0;--g:#4cc77f;--y:#f2c94c;--r:#ff6b5e;--o:#9a9a94}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#161615;--fg:#eeede8;--mut:#a3a39c;--card:#232321;--bd:#3a3a36;--b:#6f9bf0;--g:#4cc77f;--y:#f2c94c;--r:#ff6b5e;--o:#9a9a94}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 -apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:.2em 0}
+p.s{color:var(--mut);margin:.2em 0 1em;font-size:.9rem}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input,select,button{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
+input[type=text]{flex:1;min-width:140px}
+button{cursor:pointer}
+button.on{border-color:var(--fg);font-weight:700}
+.dot{display:inline-block;width:.8em;height:.8em;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.b{--c:var(--b)}.g{--c:var(--g)}.y{--c:var(--y)}.r{--c:var(--r)}.o{--c:var(--o)}
+.dot{background:var(--c)}
+#res{margin-top:10px;padding:10px;border-radius:8px;font-weight:600;display:none}
+#res.ok{display:block;background:color-mix(in srgb,var(--g) 20%,transparent)}
+#res.no{display:block;background:color-mix(in srgb,var(--r) 20%,transparent)}
+#res.nf{display:block;background:var(--bg);border:1px dashed var(--bd)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.card{background:var(--card);border:1px solid var(--bd);border-left:6px solid var(--c);border-radius:10px;padding:10px}
+.card.w{border-left-color:transparent;border-image:linear-gradient(var(--b),var(--g),var(--y),var(--r)) 1;border-image-width:0 0 0 6px}
+.nm{font-weight:700;font-size:1.05rem}
+.wt{font-size:.7rem;background:var(--fg);color:var(--bg);border-radius:4px;padding:1px 5px;margin-left:6px}
+.ch{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.chip{border:1px solid var(--c);border-radius:99px;padding:1px 9px;font-size:.85rem}
+.chip.cur{background:var(--c);color:#fff;color:color-mix(in srgb,var(--c) 15%,#fff)}
+.chip.y.cur{color:#222}
+.ar{color:var(--mut)}
+.tg{font-size:.72rem;color:var(--mut);border:1px solid var(--bd);border-radius:4px;padding:0 6px}.tgb{font-size:.8rem;padding:2px 8px}.nt{color:var(--mut);font-size:.8rem;margin-top:4px}
+footer{color:var(--mut);font-size:.8rem;margin-top:18px}
+</style>
+</head>
+<body>
+<main>
+<h1>🃏 政治 UNO 黨籍對照表</h1>
+<p class="s">藍＝國民黨　綠＝民進黨、綠黨　黃＝時代力量、新黨　紅＝台灣基進、中共　百搭／+4＝曾有多個顏色黨籍者（含同時雙重黨籍）。實心標籤為目前黨籍，空心為過去黨籍。</p>
+
+<section class="panel">
+<b>出牌驗證</b>
+<div class="row" style="margin-top:8px">
+<select id="kind"><option value="c">顏色牌</option><option value="w">百搭／+4</option></select>
+<select id="from"></select>
+<span id="to-wrap" style="display:none">轉 <select id="to"></select></span>
+<input id="who" type="text" placeholder="輸入人名，例如：鄭麗文" list="names">
+<button id="go">驗證</button>
+</div>
+<datalist id="names"></datalist>
+<div id="res"></div>
+</section>
+
+<section class="panel">
+<div class="row">
+<input id="q" type="text" placeholder="搜尋人名、政黨或標籤">
+<span id="flt"></span>
+<label><input type="checkbox" id="past" checked> 含曾經黨籍</label>
+</div><div class="row" id="tgs" style="margin-top:8px"></div>
+</section>
+
+<div id="list" class="grid"></div>
+
+<section class="panel" style="margin-top:16px">
+<b>自訂新增（僅本次瀏覽有效）</b>
+<div class="row" style="margin-top:8px">
+<input id="an" type="text" placeholder="人名" style="max-width:160px">
+<input id="ap" type="text" placeholder="黨籍，用 > 表示先後，+ 表示同時，如 民進黨>國民黨">
+<button id="ab">新增</button>
+</div>
+</section>
+
+<footer>資料整理自公開報導與一般認知，截至 2026 年 10 月，部分人物的早期黨籍與退黨細節各方說法不一，遊戲爭議時請以官方或可靠媒體為準。民眾黨、親民黨、台聯等未在 UNO 配色中，僅顯示為灰色標籤，不計入顏色判定。</footer>
+</main>
+<script>
+var CM={"國民黨":"b","民進黨":"g","綠黨":"g","時代力量":"y","新黨":"y","台灣基進":"r","中共":"r"};
+var CN={b:"藍",g:"綠",y:"黃",r:"紅"};
+var RAW=`朱立倫|國民黨|前黨主席、前新北市長
+侯友宜|國民黨|新北市長
+韓國瑜|國民黨|立法院長、前高雄市長
+盧秀燕|國民黨|台中市長
+蔣萬安|國民黨|台北市長
+連戰|國民黨|前黨主席、前副總統
+吳敦義|國民黨|前黨主席、前副總統
+馬英九|國民黨|前總統、前黨主席
+王金平|國民黨|前立法院長、立委
+洪秀柱|國民黨|前黨主席、前立委
+江啟臣|國民黨|前黨主席、立委
+蕭萬長|國民黨|前副總統、前行政院長
+羅智強|國民黨|立委
+柯志恩|國民黨|立委
+謝龍介|國民黨|立委
+蘇清泉|國民黨|立委
+王育敏|國民黨|立委
+陳玉珍|國民黨|立委
+徐榛蔚|國民黨|縣市長
+饒慶鈴|國民黨|縣市長
+蔣中正|國民黨|歷史人物、前總統
+蔣經國|國民黨|歷史人物、前總統
+孫中山|同盟會>中華革命黨>國民黨|歷史人物|同盟會、中華革命黨不計入 UNO 顏色
+鄭麗文|民進黨>國民黨|黨主席、前立委|現任國民黨主席，早年黨籍細節請核對
+趙少康|國民黨>新黨>國民黨|媒體人、前立委|2022 回歸國民黨
+王建煊|國民黨>新黨>國民黨|前立委、前財政部長
+陳學聖|國民黨>新黨>國民黨|前立委
+郝龍斌|新黨>國民黨|前台北市長、前立委
+許信良|國民黨>民進黨|前黨主席、前縣市長|曾任民進黨主席，後退黨
+宋楚瑜|國民黨>親民黨|黨主席、前省長|親民黨不計入 UNO 顏色
+郭台銘|國民黨>無黨籍|企業家|2019 年退出國民黨
+李登輝|中共>國民黨>台聯|前總統、歷史人物|1946 年短暫加入中共；2001 年遭國民黨開除，為台聯精神領袖
+賴清德|民進黨|總統、黨主席
+蕭美琴|民進黨|副總統
+蔡英文|民進黨|前總統、前黨主席
+陳水扁|民進黨|前總統、前黨主席
+卓榮泰|民進黨|行政院長
+蘇貞昌|民進黨|前行政院長、前黨主席
+謝長廷|民進黨|前行政院長、前黨主席
+游錫堃|民進黨|前立法院長、前行政院長
+蘇嘉全|民進黨|前立法院長
+陳菊|民進黨|監察院長、前高雄市長
+林佳龍|民進黨|外交部長、前台中市長
+林右昌|民進黨|內政部長
+陳其邁|民進黨|高雄市長
+黃偉哲|民進黨|台南市長
+柯建銘|民進黨|立委
+吳思瑤|民進黨|立委
+王定宇|民進黨|立委
+林俊憲|民進黨|立委
+賴瑞隆|民進黨|立委
+邱議瑩|民進黨|立委
+陳亭妃|民進黨|立委
+莊瑞雄|民進黨|立委
+蘇巧慧|民進黨|立委
+高嘉瑜|民進黨|前立委
+沈伯洋|民進黨|立委、台北市長參選人|2023 年隨民進黨不分區名單加入民進黨；查無基進黨籍報導
+陳柏惟|台灣基進>無黨籍>民進黨|前立委|2022 退出基進；2026 年 4 月宣布申請加入民進黨
+黃捷|時代力量>民進黨|議員|2020 退出時力，其後加入民進黨，請核對
+林昶佐|時代力量>民進黨|前立委|請核對轉換時間
+邱建富|民進黨>無黨籍|縣市長參選人|2026 退黨參選，遭民進黨中評會除名
+潘翰聲|綠黨|綠黨
+王婉諭|時代力量|黨主席、前立委
+陳椒華|時代力量|前立委
+徐永明|時代力量>無黨籍|前黨主席、前立委|捲入 SOGO 案後退黨
+洪慈庸|時代力量>無黨籍|前立委|任內退黨，請核對
+郁慕明|新黨|前黨主席
+李勝峰|新黨|新黨
+吳成典|新黨|黨主席|請核對現任職務
+黃國昌|時代力量>民眾黨|黨主席、立委|現任民眾黨主席
+柯文哲|民眾黨|前黨主席、前台北市長|民眾黨不計入 UNO 顏色
+黃珊珊|民眾黨|立委|民眾黨不計入 UNO 顏色
+陳建仁|無黨籍|前副總統、前行政院長|無黨籍不計入 UNO 顏色
+陳奕齊|台灣基進|黨主席
+習近平|中共|中共領導人、總書記、政治局常委
+李強|中共|中共領導人、總理、政治局常委
+王滬寧|中共|中共領導人、政協主席、政治局常委
+蔡奇|中共|中共領導人、政治局常委
+丁薛祥|中共|中共領導人、政治局常委
+李希|中共|中共領導人、政治局常委
+宋濤|中共|涉台、國台辦
+張志軍|中共|涉台、國台辦
+汪洋|中共|涉台、前政協主席
+王毅|中共|外交
+胡錦濤|中共|前總書記、前國家主席
+江澤民|中共|前總書記、前國家主席
+鄧小平|中共|歷史人物
+劉少奇|中共|歷史人物
+朱德|中共|歷史人物
+華國鋒|中共|歷史人物
+胡耀邦|中共|歷史人物
+趙紫陽|中共|歷史人物
+李鵬|中共|前總理
+朱鎔基|中共|前總理
+溫家寶|中共|前總理
+李克強|中共|前總理
+毛澤東|國民黨>中共|歷史人物|1924 年以跨黨身分加入國民黨
+周恩來|中共+國民黨|歷史人物、前總理|國共合作期間跨黨
+董必武|同盟會>國民黨>中共|歷史人物`;
+var D=[];
+function mk(n,p,g,t){var seg=p.split(">").map(function(s){return s.split("+").map(function(x){return x.trim()}).filter(Boolean)}).filter(function(a){return a.length});
+ var all=[],cur=[];seg.forEach(function(a,i){a.forEach(function(x){var c=CM[x]||"o";if(all.indexOf(c)<0&&c!="o")all.push(c)});if(i==seg.length-1)cur=a.map(function(x){return CM[x]||"o"})});
+ return{n:n,seg:seg,all:all,cur:cur.filter(function(c){return c!="o"}),t:t||"",tg:(g||"").split("、").filter(Boolean)}}
+RAW.split("\n").forEach(function(l){var a=l.split("|");D.push(mk(a[0],a[1],a[2],a[3]))});
+var F="all",T="";
+function $(i){return document.getElementById(i)}
+function colors(d){return $("past").checked?d.all:d.cur}
+function chain(d){var h="";d.seg.forEach(function(a,i){if(i)h+='<span class="ar">→</span>';var last=i==d.seg.length-1;h+=a.map(function(x){var c=CM[x]||"o";return'<span class="chip '+c+(last?" cur":"")+'">'+x+"</span>"}).join('<span class="ar">+</span>')});return h}
+function render(){var q=$("q").value.trim(),h="";
+ D.forEach(function(d){var cs=colors(d),w=d.all.length>1;
+  if(F=="w"&&!w)return;if(F!="all"&&F!="w"&&cs.indexOf(F)<0)return;
+  if(T&&d.tg.indexOf(T)<0)return;if(q&&(d.n+d.seg.join("")+d.tg.join("")).indexOf(q)<0)return;
+  var main=(w?"":(d.all[0]||"o"));
+  h+='<div class="card '+(w?"w":main)+'"><div class="nm">'+d.n+(w?'<span class="wt">百搭</span>':"")+'</div><div class="ch">'+chain(d)+"</div>"+(d.tg.length?'<div class="ch">'+d.tg.map(function(x){return'<span class="tg">'+x+"</span>"}).join("")+"</div>":"")+(d.t?'<div class="nt">'+d.t+"</div>":"")+"</div>"});
+ $("list").innerHTML=h||'<p class="s">沒有符合的結果</p>';
+ $("names").innerHTML=D.map(function(d){return'<option value="'+d.n+'">'}).join("")}
+function tags(){var m={};D.forEach(function(d){d.tg.forEach(function(x){m[x]=(m[x]||0)+1})});var k=Object.keys(m).sort(function(a,b){return m[b]-m[a]}),h='<button class="tgb '+(T?"":"on")+'" data-t="">全部標籤</button>';k.forEach(function(x){h+='<button class="tgb '+(T==x?"on":"")+'" data-t="'+x+'">'+x+" "+m[x]+"</button>"});$("tgs").innerHTML=h;Array.prototype.forEach.call($("tgs").querySelectorAll("button"),function(b){b.onclick=function(){T=b.dataset.t;tags();render()}})}
+function filt(){var h='';[["all","全部"],["b","藍"],["g","綠"],["y","黃"],["r","紅"],["w","百搭"]].forEach(function(f){h+='<button data-f="'+f[0]+'" class="'+(F==f[0]?"on":"")+'">'+(CN[f[0]]?'<span class="dot '+f[0]+'"></span>':"")+f[1]+"</button> "});
+ $("flt").innerHTML=h;
+ Array.prototype.forEach.call($("flt").querySelectorAll("button"),function(b){b.onclick=function(){F=b.dataset.f;filt();render()}})}
+function opts(el,any){el.innerHTML=(any?'<option value="">任意色</option>':"")+Object.keys(CN).map(function(c){return'<option value="'+c+'">'+CN[c]+"</option>"}).join("")}
+opts($("from"));opts($("to"));
+$("kind").onchange=function(){var w=this.value=="w";$("to-wrap").style.display=w?"inline":"none";opts($("from"),w)};
+$("go").onclick=function(){var n=$("who").value.trim(),r=$("res"),d=D.filter(function(x){return x.n==n})[0];
+ if(!d){r.className="nf";r.textContent="查無「"+n+"」，可在下方自訂新增後再驗證。";return}
+ var cs=colors(d),k=$("kind").value,f=$("from").value,t=$("to").value,ok,msg;
+ if(k=="c"){ok=cs.indexOf(f)>=0;msg=ok?"✅ "+n+" 有"+CN[f]+"色黨籍":"❌ "+n+" 沒有"+CN[f]+"色黨籍（"+(cs.map(function(c){return CN[c]}).join("、")||"無")+"）"}
+ else{ok=cs.length>=2&&(!f||cs.indexOf(f)>=0)&&cs.indexOf(t)>=0&&(!f||f!=t);
+  msg=ok?"✅ "+n+" 可打百搭："+(f?CN[f]+" → ":"")+CN[t]:"❌ "+n+" 不符（顏色："+(cs.map(function(c){return CN[c]}).join("、")||"無")+"）"}
+ r.className=ok?"ok":"no";r.textContent=msg};
+$("ab").onclick=function(){var n=$("an").value.trim(),p=$("ap").value.trim();if(!n||!p)return;D.unshift(mk(n,p,"自訂",""));$("an").value=$("ap").value="";render()};
+$("q").oninput=render;$("past").onchange=render;
+filt();tags();render();
+</script>
+</body>
+</html>
